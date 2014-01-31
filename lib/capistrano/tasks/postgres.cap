@@ -1,0 +1,48 @@
+set :postgresql_host, 'localhost'
+# set(:postgresql_user) { fetch :user }
+set :postgresql_user, fetch(:user)
+set :postgresql_password, 'password'
+set :postgresql_database, "#{fetch :application}_#{fetch :rails_env}"
+
+namespace :postgresql do
+  desc 'Install the latest stable release of PostgreSQL.'
+  task :install do
+    on roles :db do
+      sudo "echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' > /etc/apt/sources.list.d/pgdg.list"
+      sudo 'wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -'
+      sudo 'apt-get -y update'
+      sudo 'apt-get -y install postgresql-9.3 libpq-dev'
+    end
+  end
+
+  desc 'Create a database user for the application'
+  task :create_user do
+    on roles :db do
+      create_user fetch(:postgresql_user), fetch(:postgresql_password)
+    end
+  end
+
+  desc 'Create a database for the application'
+  task :create_database do
+    on roles :db do
+      create_database fetch(:postgresql_database), fetch(:postgresql_user)
+    end
+  end
+
+  # Utilities
+  def create_database(database, username)
+    sudo %{psql -c 'create database "#{database}" owner "#{username}"'}, as: 'postgres'
+  rescue
+    logger.important 'PostreSQL database already exists'
+  end
+
+  def create_user(username, password)
+    sudo %{psql -c 'create user "#{username}" with password "#{password}"'}, as: 'postgres'
+  rescue
+    logger.important 'PostreSQL user already exists'
+  end
+end
+
+# after 'deploy:install', 'postgresql:install'
+# after 'deploy:setup', 'postgresql:create_user'
+# after 'postgresql:create_user', 'postgresql:create_database'
