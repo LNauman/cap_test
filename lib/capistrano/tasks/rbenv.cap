@@ -1,0 +1,34 @@
+namespace :rbenv do
+  # https://www.digitalocean.com/community/articles/how-to-install-ruby-on-rails-on-ubuntu-12-04-lts-with-rbenv--2
+  desc 'Install Ruby (rbenv) on server'
+  task :install do
+    run "#{sudo} apt-get update"
+    run "#{sudo} apt-get -y install python-software-properties"
+
+    run "#{sudo} apt-get -y update"
+    run "#{sudo} apt-get -y install curl git-core nodejs"
+
+    run 'curl https://raw.github.com/fesplugas/rbenv-installer/master/bin/rbenv-installer | bash'
+
+    puts <<-STRING
+    cat << 'EOF' >> ~/.bashrc
+    export RBENV_ROOT="${HOME}/.rbenv"
+    if [ -d "${RBENV_ROOT}" ]; then
+      export PATH="${RBENV_ROOT}/bin:${PATH}"
+      eval "$(rbenv init -)"
+    fi
+    EOF
+    STRING
+
+    run 'source ~/.bashrc'
+
+    run 'rbenv bootstrap-ubuntu-12-04'
+
+    run 'rbenv install 2.1.0'
+    run 'rbenv rehash'
+    run 'rbenv global 2.1.0'
+
+    run 'gem install rdoc bundler rake'
+    run 'rbenv rehash'
+  end
+end
