@@ -1,10 +1,10 @@
 # config valid only for Capistrano 3.1
 lock '3.1.0'
-set :user, 'deploy'
+set :user, 'deployer'
 set :application, 'cap_test'
-set :repo_url, "git@github.com:smashingboxes/#{application}.git"
+set :repo_url, "git@github.com:smashingboxes/#{fetch :application}.git"
 
-set :deploy_to, "/home/#{user}/www/#{application}"
+set :deploy_to, "/home/#{fetch :user}/www/#{fetch :application}"
 
 set :linked_files, %w{config/database.yml config/application.yml}
 

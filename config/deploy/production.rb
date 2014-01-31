@@ -1,3 +1,3 @@
-server 'example.com', user: user, roles: %w{web app db}
+server 'example.com', user: fetch(:user), roles: %w{web app db}
 
 set :rails_env, 'production'
