@@ -45,5 +45,10 @@ gem 'capistrano', '~> 3.1.0'
 gem 'capistrano-rails', '~> 1.1.1', group: :development
 gem 'capistrano-rbenv', '~> 2.0.2'
 
+group :development do
+  gem 'chef', github: 'opscode/chef'
+  gem 'librarian-chef', github: 'applicationsonline/librarian-chef'
+end
+
 # Use debugger
 # gem 'debugger', group: [:development, :test]

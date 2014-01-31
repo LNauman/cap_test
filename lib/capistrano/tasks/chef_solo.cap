@@ -1,0 +1,50 @@
+class HostBinding
+  attr_reader :hostname
+
+  def initialize(host)
+    @hostname = host.hostname
+  end
+
+  def get_binding
+    return binding()
+  end
+end
+
+file "cookbooks.tar.gz" => FileList["cookbooks/**/*"] do |t|
+  sh "tar -cvzf #{t.name} #{t.prerequisites.join('  ')}"
+end
+
+namespace :'chef-solo' do
+  task :install do
+    on roles :all do
+      within "#{fetch :deploy_to}/current" do
+        execute :gem, 'install', 'chef'
+      end
+    end
+  end
+
+  desc "Package and upload the cookbooks"
+  task :'upload-cookbooks' => 'cookbooks.tar.gz' do |t|
+    tarball = t.prerequisites.first
+    on roles :all do
+      execute :mkdir, '-p', '/tmp/chef-solo'
+      upload!(tarball, '/tmp/chef-solo')
+      execute :tar, '-xzf', "/tmp/chef-solo/#{tarball}"
+    end
+  end
+  desc "Uploads host specific configuration for chef solo"
+  task :'upload-host-config' do
+    on roles(:all) do |host|
+      template_path = File.expand_path('chef-solo.rb.erb')
+      binding = HostBinding.new(host).get_binding
+      host_config   = ERB.new(File.new(template_path).read).result binding
+      upload! StringIO.new(host_config), '/tmp/chef-solo.rb'
+    end
+  end
+  desc "Upload cookbooks and configuration and execute chef-solo."
+  task default: [:'upload-cookbooks', :'upload-host-config'] do
+    on roles(:all) do |host|
+      execute :'chef-solo', '--config', '/tmp/chef-solo.rb', '--log_level', 'info'
+    end
+  end
+end

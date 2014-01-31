@@ -1,0 +1,8 @@
+solo true
+log_level :info
+node_name '<%= hostname %>'
+cookbook_path ['/tmp/chef-solo/cookbooks', '/tmp/chef-solo/site-cookbooks']
+data_bag_path '/tmp/chef-solo/data_bags'
+json_attribs '/tmp/chef-solo/node.json'
+role_path '/tmp/chef-solo/roles'
+evironment_path '/tmp/chef-solo/environments'
