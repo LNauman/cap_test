@@ -2,7 +2,7 @@
 lock '3.1.0'
 set :user, 'deployer'
 set :application, 'cap_test'
-set :repo_url, "git@github.com:smashingboxes/#{fetch :application}.git"
+set :repo_url, "git@github.com:LNauman/#{fetch :application}.git"
 
 set :deploy_to, "/home/#{fetch :user}/www/#{fetch :application}"
 
